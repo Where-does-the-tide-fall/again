@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'bfo4q0@wm^f5r1#gm63^8v$a&xb2gcg@%2^^&s@p^awcd@g+ad'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -56,7 +54,7 @@ ROOT_URLCONF = 'Flying.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [Path.joinpath(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,17 +69,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Flying.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 使用 mysql 数据库
+        'ENGINE': 'django.db.backends.mysql',
+        # 数据库服务的IP，注意改给自己的
+        'HOST': '127.0.0.1',
+        # 数据库服务的端口，mysql服务默认端口为 3306
+        'PORT': 3306,
+        # 链接数据库服务的用户名
+        'USER': 'root',
+        # 链接数据库服务的密码
+        'PASSWORD': '123456',
+        # 使用的数据库名称
+        'NAME': 'again_study',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -101,7 +107,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -115,8 +120,26 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# Django框架的缓存存储配置，默认是服务器内存，此处将缓存配置为：redis
+CACHES = {
+    # 缓存空间
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        # 缓存空间的地址，此处是对应redis数据库的地址
+        # 注意：这里 192.168.19.131 需要改成自己的 redis 数据库的IP
+        "LOCATION": "redis://192.168.19.131:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Django框架的 Session 存储配置，此处是设置将 Session 数据存储到缓存中
+# 注意：因为缓存已经设置为了redis，所有自然 session 数据就会存储到 redis 数据库中
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# 此处是设置将 Session 数据存储到 CACHES 缓存的 default 空间中
+SESSION_CACHE_ALIAS = "default"
